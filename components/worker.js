@@ -2,6 +2,7 @@
 
 const _ = require('lodash');
 const Promise = require('bluebird');
+const log4js = require('../lib/log4js');
 const EventEmitter = require('events');
 
 const STATE_IDLE = 'idle';
@@ -16,7 +17,7 @@ class Worker extends EventEmitter {
         this.conf = _.defaults({}, conf, {
             sleep: 1000
         });
-        this.logger = require('../lib/log4js').getLogger('worker-' + name);
+        this.logger = log4js.getLogger('worker-' + name);
         this.stopped = true;
         this.timer = null;
         this.state = null;
@@ -36,7 +37,7 @@ class Worker extends EventEmitter {
             clearTimeout(this.timer);
             this.timer = null;
         }
-        if (this.state == STATE_IDLE) {
+        if (this.state === STATE_IDLE) {
             this.state = STATE_STOP;
             this.emit('stop');
         }

@@ -60,20 +60,7 @@ class Manager extends Worker {
 
     _restoreFailedTasks(t) {
         let where = [{status: 'failure'}];
-        let conditions = [];
-
-        _.each(config.workers, (worker) => {
-            if (worker.queue) {
-                let item = {queue: worker.queue};
-                if (worker.maxAttempts !== undefined) {
-                    item.attempts = {
-                        $lt: worker.maxAttempts
-                    };
-                }
-                conditions.push(item);
-            }
-        });
-
+        let conditions = this._failedTasksConditions();
         if (conditions.length) {
             where.push({$or: conditions});
         }
@@ -131,8 +118,22 @@ class Manager extends Worker {
                 $lt: moment().subtract(this.conf.maxFailed).toMySQL()
             }}
         ];
-        let conditions = [];
+        let conditions = this._failedTasksConditions();
+        if (conditions.length) {
+            where.push({$or: conditions});
+        }
+        return models.Task.destroy({
+            where: where,
+            transaction: t
+        }).then(count => {
+            if (count > 0) {
+                this.logger.info('Delete failed tasks:', count);
+            }
+        });
+    }
 
+    _failedTasksConditions() {
+        let conditions = [];
         _.each(config.workers, (worker) => {
             if (worker.queue) {
                 let item = {queue: worker.queue};
@@ -144,19 +145,7 @@ class Manager extends Worker {
                 conditions.push(item);
             }
         });
-
-        if (conditions.length) {
-            where.push({$or: conditions});
-        }
-
-        return models.Task.destroy({
-            where: where,
-            transaction: t
-        }).then(count => {
-            if (count > 0) {
-                this.logger.info('Delete failed tasks:', count);
-            }
-        });
+        return conditions;
     }
 
 }

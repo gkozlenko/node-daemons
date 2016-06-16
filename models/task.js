@@ -101,7 +101,7 @@ module.exports = function(sequelize, Sequelize) {
 
         instanceMethods: {
             fail: function(delay, options) {
-                this.start_at = delay ? moment().add(data.delay, 'ms').toMySQL() : null;
+                this.start_at = delay ? moment().add(delay, 'ms').toMySQL() : null;
                 this.attempts = sequelize.literal('attempts + 1');
                 this.status = 'failure';
                 return this.save(options);

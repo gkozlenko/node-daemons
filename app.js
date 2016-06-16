@@ -25,7 +25,7 @@ if (cluster.isMaster) {
             process.exit();
         });
     }
-    process.on('message', (message) => {
+    process.on('message', message => {
         if ('shutdown' === message) {
             if (worker) {
                 worker.stop();

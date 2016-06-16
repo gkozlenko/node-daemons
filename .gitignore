@@ -1,0 +1,16 @@
+# IDE
+/.idea
+
+# Vagrant
+/.vagrant
+
+# Environment file
+/.env
+
+# Logs dir
+/logs/*
+!/logs/.gitkeep
+/*.log
+
+# 3rd party modules dir
+/node_modules

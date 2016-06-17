@@ -5,14 +5,28 @@ const config = require('./config/config');
 const _ = require('lodash');
 const path = require('path');
 const cluster = require('cluster');
+const ip = require('ip');
 const logger = require('./lib/log4js').getLogger('app');
+const models = require('./models');
+
+let shutdownInterval = null;
 
 if (cluster.isMaster) {
-    logger.info('Start workers');
-    _.each(config.workers, (conf, name) => {
-        if (conf.enabled) {
-            startWorker(name);
-        }
+    models.Node.findOrCreate({
+        where: {
+            id: config.node_id
+        },
+        defaults: {
+            hostname: ip.address()
+        },
+        paranoid: false
+    }).then(() => {
+        logger.info('Start workers');
+        _.each(config.workers, (conf, name) => {
+            if (conf.enabled) {
+                startWorker(name);
+            }
+        });
     });
 } else {
     let name = process.env.WORKER_NAME;
@@ -55,13 +69,23 @@ function startWorker(name) {
 
 function shutdownCluster() {
     if (cluster.isMaster) {
-        logger.info('Shutdown workers');
-        _.each(cluster.workers, (worker) => {
-            try {
-                worker.send('shutdown');
-            } catch (err) {
-                logger.warn('Cannot send shutdown message to worker:', err);
-            }
-        });
+        clearInterval(shutdownInterval);
+        if (_.size(cluster.workers) > 0) {
+            logger.info('Shutdown workers:', _.size(cluster.workers));
+            _.each(cluster.workers, worker => {
+                try {
+                    worker.send('shutdown');
+                } catch (err) {
+                    logger.warn('Cannot send shutdown message to worker:', err);
+                }
+            });
+            shutdownInterval = setInterval(() => {
+                if (_.size(cluster.workers) == 0) {
+                    process.exit();
+                }
+            }, config.shutdownInterval);
+        } else {
+            process.exit();
+        }
     }
 }

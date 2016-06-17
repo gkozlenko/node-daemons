@@ -23,6 +23,7 @@ let config = {
             idle: 10000
         }
     },
+    shutdownInterval: 1000,
     workers: require('./workers')
 };
 

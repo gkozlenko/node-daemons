@@ -24,15 +24,6 @@ module.exports = {
                 defaultValue: false,
                 allowNull: false
             },
-            token: {
-                type: Sequelize.STRING
-            },
-            old_token: {
-                type: Sequelize.STRING
-            },
-            token_changed_at: {
-                type: Sequelize.DATE
-            },
             checked_at: {
                 type: Sequelize.DATE
             },

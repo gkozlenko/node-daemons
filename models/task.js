@@ -1,6 +1,6 @@
 'use strict';
 
-const moment = require('../lib/moment');
+const moment = require('moment');
 
 module.exports = function(sequelize, Sequelize) {
 
@@ -77,7 +77,7 @@ module.exports = function(sequelize, Sequelize) {
                             $or: [
                                 null,
                                 {
-                                    $lt: moment().toMySQL()
+                                    $lt: moment().toDate()
                                 }
                             ]
                         },
@@ -85,7 +85,7 @@ module.exports = function(sequelize, Sequelize) {
                             $or: [
                                 null,
                                 {
-                                    $gte: moment().toMySQL()
+                                    $gte: moment().toDate()
                                 }
                             ]
                         }
@@ -101,7 +101,7 @@ module.exports = function(sequelize, Sequelize) {
 
         instanceMethods: {
             fail: function(delay, options) {
-                this.start_at = delay ? moment().add(delay, 'ms').toMySQL() : null;
+                this.start_at = delay ? moment().add(delay, 'ms').toDate() : null;
                 this.attempts = sequelize.literal('attempts + 1');
                 this.status = 'failure';
                 return this.save(options);
@@ -113,7 +113,7 @@ module.exports = function(sequelize, Sequelize) {
             work: function(node_id, options) {
                 this.status = 'working';
                 this.worker_node_id = node_id;
-                this.worker_started_at = moment().toMySQL();
+                this.worker_started_at = moment().toDate();
                 return this.save(options);
             },
             touch: function(options) {

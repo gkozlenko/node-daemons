@@ -1,11 +1,10 @@
 'use strict';
 
-const uuid = require('node-uuid');
-const moment = require('../lib/moment');
+const moment = require('moment');
 
 module.exports = function(sequelize, Sequelize) {
 
-    let Node = sequelize.define('Node', {
+    return sequelize.define('Node', {
         id: {
             type: Sequelize.INTEGER,
             primaryKey: true,
@@ -27,15 +26,6 @@ module.exports = function(sequelize, Sequelize) {
             defaultValue: false,
             allowNull: false
         },
-        token: {
-            type: Sequelize.STRING
-        },
-        old_token: {
-            type: Sequelize.STRING
-        },
-        token_changed_at: {
-            type: Sequelize.DATE
-        },
         checked_at: {
             type: Sequelize.DATE
         }
@@ -54,25 +44,19 @@ module.exports = function(sequelize, Sequelize) {
             }
         },
 
-        hooks: {
-            beforeCreate: function(model) {
-                if (!model.token) {
-                    model.token = Node.generateToken();
-                    model.token_changed_at = moment().toMySQL();
-                }
+        instanceMethods: {
+            check: function(options) {
+                this.is_active = true;
+                this.checked_at = moment().toDate();
+                return this.save(options);
             }
         },
 
         classMethods: {
             associate: function(models) {
                 models.Node.hasMany(models.Task, {foreignKey: 'node_id'});
-            },
-            generateToken: function() {
-                return uuid.v4();
             }
         }
     });
-
-    return Node;
 
 };

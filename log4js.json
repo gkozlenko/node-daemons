@@ -1,8 +1,7 @@
 {
   "appenders": [
     {
-      "type": "console",
-      "replaceConsole": true
+      "type": "console"
     },
     {
       "type": "file",

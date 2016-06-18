@@ -1,7 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
-const moment = require('../lib/moment');
+const moment = require('moment');
 const Promise = require('bluebird');
 const Worker = require('../components/worker');
 const models = require('../models');
@@ -22,6 +22,15 @@ class Manager extends Worker {
         return models.sequelize.transaction(t => {
             return Promise.resolve()
                 .then(() => {
+                    return this._checkCurrentNode(t);
+                })
+                .then(() => {
+                    return this._activateNodes(t);
+                })
+                .then(() => {
+                    return this._pauseNodes(t);
+                })
+                .then(() => {
                     return this._restoreFrozenTasks(t);
                 })
                 .then(() => {
@@ -38,6 +47,50 @@ class Manager extends Worker {
                 });
         });
     }
+    
+    _checkCurrentNode(t) {
+        return models.Node.findById(config.node_id, {transaction: t}).then(node => {
+            if (node) {
+                return node.check();
+            }
+        });
+    }
+
+    _activateNodes(t) {
+        return models.Node.update({
+            is_active: true
+        }, {
+            where: {
+                is_active: false,
+                checked_at: {
+                    $gte: moment().subtract(2 * this.conf.sleep).toDate()
+                }
+            },
+            transaction: t
+        }).spread(count => {
+            if (count > 0) {
+                this.logger.info('Activate nodes:', count);
+            }
+        });
+    }
+
+    _pauseNodes(t) {
+        return models.Node.update({
+            is_active: false
+        }, {
+            where: {
+                is_active: true,
+                checked_at: {
+                    $lt: moment().subtract(2 * this.conf.sleep).toDate()
+                }
+            },
+            transaction: t
+        }).spread(count => {
+            if (count > 0) {
+                this.logger.info('Pause nodes:', count);
+            }
+        });
+    }
 
     _restoreFrozenTasks(t) {
         return models.Task.update({
@@ -47,7 +100,7 @@ class Manager extends Worker {
             where: {
                 status: 'working',
                 updated_at: {
-                    $lt: moment().subtract(this.conf.maxUpdate).toMySQL()
+                    $lt: moment().subtract(this.conf.maxUpdate).toDate()
                 }
             },
             transaction: t
@@ -84,7 +137,7 @@ class Manager extends Worker {
             where: {
                 status: 'pending',
                 finish_at: {
-                    $lt: moment().toMySQL()
+                    $lt: moment().toDate()
                 }
             },
             transaction: t
@@ -100,7 +153,7 @@ class Manager extends Worker {
             where: {
                 status: 'done',
                 updated_at: {
-                    $lt: moment().subtract(this.conf.maxCompleted).toMySQL()
+                    $lt: moment().subtract(this.conf.maxCompleted).toDate()
                 }
             },
             transaction: t
@@ -115,7 +168,7 @@ class Manager extends Worker {
         let where = [
             {status: 'failure'},
             {updated_at: {
-                $lt: moment().subtract(this.conf.maxFailed).toMySQL()
+                $lt: moment().subtract(this.conf.maxFailed).toDate()
             }}
         ];
         let conditions = this._failedTasksConditions();

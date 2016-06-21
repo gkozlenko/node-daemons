@@ -19,7 +19,8 @@
     "migrate": "sequelize db:migrate",
     "migrate-undo": "sequelize db:migrate:undo",
     "migrate-create": "sequelize migration:create",
-    "outdated": "npm outdated --depth=0"
+    "outdated": "npm outdated --depth=0",
+    "lint": "eslint ./"
   },
   "dependencies": {
     "bluebird": "^3.4.1",
@@ -31,5 +32,8 @@
     "mysql": "^2.11.1",
     "sequelize": "^3.23.3",
     "sequelize-cli": "^2.4.0"
+  },
+  "devDependencies": {
+    "eslint": "^2.13.1"
   }
 }

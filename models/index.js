@@ -9,7 +9,7 @@ const Sequelize = require('sequelize');
 
 let sequelize = new Sequelize(config.database.url, _.merge({}, config.database, {
     logging: function() {
-        logger.debug.apply(logger, arguments)
+        logger.debug.apply(logger, arguments);
     }
 }));
 let db = {};

@@ -46,6 +46,9 @@ module.exports = {
             worker_started_at: {
                 type: Sequelize.DATE
             },
+            checked_at: {
+                type: Sequelize.DATE
+            },
             created_at: {
                 type: Sequelize.DATE
             },

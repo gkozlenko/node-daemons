@@ -99,7 +99,7 @@ class Manager extends Worker {
         }, {
             where: {
                 status: 'working',
-                updated_at: {
+                checked_at: {
                     $lt: moment().subtract(this.conf.maxUpdate).toDate()
                 }
             },
@@ -152,7 +152,7 @@ class Manager extends Worker {
         return models.Task.destroy({
             where: {
                 status: 'done',
-                updated_at: {
+                checked_at: {
                     $lt: moment().subtract(this.conf.maxCompleted).toDate()
                 }
             },
@@ -167,7 +167,7 @@ class Manager extends Worker {
     _deleteFailedTasks(t) {
         let where = [
             {status: 'failure'},
-            {updated_at: {
+            {checked_at: {
                 $lt: moment().subtract(this.conf.maxFailed).toDate()
             }}
         ];

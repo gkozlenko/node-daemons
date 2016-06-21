@@ -57,6 +57,9 @@ module.exports = function(sequelize, Sequelize) {
         },
         worker_started_at: {
             type: Sequelize.DATE
+        },
+        checked_at: {
+            type: Sequelize.DATE
         }
     }, {
         tableName: 'tasks',
@@ -67,10 +70,12 @@ module.exports = function(sequelize, Sequelize) {
             forWork: function(queue, node_id) {
                 return {
                     where: {
-                        node_id: [
-                            null,
-                            node_id
-                        ],
+                        node_id: {
+                            $or: [
+                                null,
+                                node_id
+                            ]
+                        },
                         queue: queue,
                         status: 'pending',
                         start_at: {
@@ -116,8 +121,8 @@ module.exports = function(sequelize, Sequelize) {
                 this.worker_started_at = moment().toDate();
                 return this.save(options);
             },
-            touch: function(options) {
-                this.changed('updated_at', true);
+            check: function(options) {
+                this.checked_at = moment().toDate();
                 return this.save(options);
             }
         },

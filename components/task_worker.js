@@ -16,7 +16,7 @@ class TaskWorker extends Worker {
             delayRatio: 300000,
             count: 1,
             queue: '',
-            update: 3000
+            update: 10000
         });
         this.count = 0;
     }
@@ -29,7 +29,7 @@ class TaskWorker extends Worker {
                     // Touch task
                     let interval = setInterval(() => {
                         return models.sequelize.transaction(t => {
-                            return task.touch({transaction: t});
+                            return task.check({transaction: t});
                         });
                     }, this.conf.update);
                     // Handle task

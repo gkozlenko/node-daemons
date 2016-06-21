@@ -5,6 +5,7 @@ const config = require('../config/config');
 const _ = require('lodash');
 const Promise = require('bluebird');
 const Worker = require('./worker');
+const WorkerStates = require('./worker_states');
 const models = require('../models');
 
 class TaskWorker extends Worker {
@@ -21,8 +22,17 @@ class TaskWorker extends Worker {
         this.count = 0;
     }
 
+    stop() {
+        this.logger.info('Stop');
+        this.stopped = true;
+        if (this.state === WorkerStates.STATE_IDLE) {
+            this.state = WorkerStates.STATE_STOP;
+            this.emit('stop');
+        }
+    }
+
     loop() {
-        if (this.count < this.conf.count) {
+        if (this.count < this.conf.count && !this.stopped) {
             return this._getTask().then(task => {
                 if (task) {
                     this.count++;
@@ -79,6 +89,25 @@ class TaskWorker extends Worker {
                     return task.work(config.node_id, {transaction: t});
                 }
             });
+        });
+    }
+
+    _startLoop() {
+        this.state = WorkerStates.STATE_WORK;
+        return this.loop().catch(err => {
+            this.logger.warn('Loop error:', err);
+        }).finally(() => {
+            if (this.count === 0) {
+                this.state = WorkerStates.STATE_IDLE;
+            }
+            if (this.stopped && this.count === 0) {
+                this.state = WorkerStates.STATE_STOP;
+                this.emit('stop');
+            } else {
+                this.timer = setTimeout(() => {
+                    this._startLoop();
+                }, this.conf.sleep);
+            }
         });
     }
 

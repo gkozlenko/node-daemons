@@ -12,12 +12,6 @@ class Sample extends TaskWorker {
         });
     }
 
-    delay(task, options) {
-        return Promise.resolve().then(() => {
-            return task.attempts * this.conf.delayRatio;
-        });
-    }
-
 }
 
 module.exports = Sample;

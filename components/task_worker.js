@@ -41,8 +41,8 @@ class TaskWorker extends Worker {
                         });
                     }).catch(err => {
                         this.logger.warn('Handle error:', err);
-                        return models.sequelize.transaction(t => {
-                            return this.delay(task, {transaction: t}).then(delay => {
+                        return this.delay(task).then(delay => {
+                            return models.sequelize.transaction(t => {
                                 return task.fail(delay, {transaction: t}).then(() => {
                                     this.logger.warn('Task failed:', task.id);
                                 });
@@ -64,8 +64,10 @@ class TaskWorker extends Worker {
         return Promise.resolve();
     }
     
-    delay(task, options) {
-        return Promise.resolve();
+    delay(task) {
+        return Promise.resolve().then(() => {
+            return task.attempts * this.conf.delayRatio;
+        });
     }
 
     _getTask() {

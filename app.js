@@ -80,7 +80,7 @@ function shutdownCluster() {
                 }
             });
             shutdownInterval = setInterval(() => {
-                if (_.size(cluster.workers) == 0) {
+                if (_.size(cluster.workers) === 0) {
                     process.exit();
                 }
             }, config.shutdownInterval);

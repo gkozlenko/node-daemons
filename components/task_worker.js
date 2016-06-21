@@ -22,15 +22,6 @@ class TaskWorker extends Worker {
         this.count = 0;
     }
 
-    stop() {
-        this.logger.info('Stop');
-        this.stopped = true;
-        if (this.state === WorkerStates.STATE_IDLE) {
-            this.state = WorkerStates.STATE_STOP;
-            this.emit('stop');
-        }
-    }
-
     loop() {
         if (this.count < this.conf.count && !this.stopped) {
             return this._getTask().then(task => {

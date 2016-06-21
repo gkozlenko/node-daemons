@@ -30,11 +30,11 @@ class Worker extends EventEmitter {
     stop() {
         this.logger.info('Stop');
         this.stopped = true;
-        if (this.timer) {
-            clearTimeout(this.timer);
-            this.timer = null;
-        }
         if (this.state === WorkerStates.STATE_IDLE) {
+            if (this.timer) {
+                clearTimeout(this.timer);
+                this.timer = null;
+            }
             this.state = WorkerStates.STATE_STOP;
             this.emit('stop');
         }

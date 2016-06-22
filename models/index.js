@@ -4,7 +4,7 @@ const config = require('../config/config');
 const _ = require('lodash');
 const fs = require('fs');
 const path = require('path');
-const logger = require('../lib/log4js').getLogger('sequelize');
+const logger = require('log4js').getLogger('sequelize');
 const Sequelize = require('sequelize');
 
 let sequelize = new Sequelize(config.database.url, _.merge({}, config.database, {

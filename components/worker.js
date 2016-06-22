@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 const Promise = require('bluebird');
-const log4js = require('../lib/log4js');
+const log4js = require('log4js');
 const EventEmitter = require('events');
 const WorkerStates = require('./worker_states');
 

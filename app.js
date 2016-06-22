@@ -6,7 +6,7 @@ const _ = require('lodash');
 const path = require('path');
 const cluster = require('cluster');
 const ip = require('ip');
-const logger = require('./lib/log4js').getLogger('app');
+const logger = require('log4js').getLogger('app');
 const models = require('./models');
 
 let shutdownInterval = null;

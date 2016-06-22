@@ -9,6 +9,9 @@ require('dotenv').config({
     path: path.join(__dirname, '..', '.env')
 });
 
+// Set log4js config
+process.env.LOG4JS_CONFIG = path.join(__dirname, '..', 'log4js.json');
+
 const _ = require('lodash');
 
 let config = {

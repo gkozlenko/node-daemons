@@ -1,18 +1,18 @@
 'use strict';
 
+const _ = require('lodash');
+const path = require('path');
+
 // Set environment
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
-
-// Load dotenv
-const path = require('path');
-require('dotenv').config({
-    path: path.join(__dirname, '..', '.env')
-});
-
 // Set log4js config
 process.env.LOG4JS_CONFIG = path.join(__dirname, '..', 'log4js.json');
 
-const _ = require('lodash');
+// Load dotenv
+require('dotenv').config({
+    path: path.join(__dirname, '..', '.env'),
+    silent: true
+});
 
 let config = {
     env: process.env.NODE_ENV,
@@ -31,7 +31,7 @@ let config = {
     workers: require('./workers')
 };
 
-// For sequelize-cli
+// Sequelize environments
 _.each(['development', 'production', 'test'], env => {
     config[env] = _.clone(config.database);
     if (env === 'test') {

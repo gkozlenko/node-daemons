@@ -169,9 +169,7 @@ describe('.scope', function() {
         ];
 
         before(function() {
-            return models.Task.bulkCreate(_.shuffle(_.concat(otherTasks, actualTasks))).then(function() {
-                //
-            });
+            return models.Task.bulkCreate(_.shuffle(_.concat(otherTasks, actualTasks)));
         });
 
         it('should return right tasks', function() {

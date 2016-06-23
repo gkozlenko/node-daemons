@@ -1,0 +1,21 @@
+language: node_js
+node_js:
+  - "5"
+  - "5.1"
+  - "4"
+  - "4.2"
+  - "4.1"
+  - "4.0"
+cache:
+  directories:
+    - node_modules
+services:
+  - mysql
+before_script:
+  - mysql -e 'create database node_daemons_test;'
+branches:
+  only:
+    - master
+env:
+  - MYSQL_URI_TEST="mysql://root@localhost:3306/node_daemons_test"
+  - NODE_ID=1

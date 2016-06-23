@@ -4,31 +4,30 @@ const common = require('../common');
 const expect = common.expect;
 const faker = common.faker;
 
+const moment = require('moment');
 const models = require('../../models');
-
-let nodeId = faker.random.number();
-
-before(function() {
-    return models.Node.create({
-        id: nodeId,
-        hostname: faker.internet.domainName()
-    });
-});
 
 describe('#check', function() {
 
     let node = null;
 
     before(function() {
-        return models.Node.findById(nodeId).then(function(value) {
-            return value.check().then(function(value) {
-                node = value;
-            });
+        return models.Node.create({
+            hostname: faker.internet.domainName()
+        }).then(function(value) {
+            return value.check();
+        }).then(function(value) {
+            return value.reload();
+        }).then(function(value) {
+            node = value;
         });
     });
 
-    it('should change checked_at field', function() {
-        return expect(node.checked_at).to.be.ok;
+    it('should change checked_at correctly', function() {
+        return [
+            expect(node.checked_at).to.beforeTime(moment().add(1000, 'ms').toDate()),
+            expect(node.checked_at).to.afterTime(moment().subtract(1000, 'ms').toDate())
+        ];
     });
 
     it('should activate node', function() {

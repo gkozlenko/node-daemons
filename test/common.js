@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const chai = require('chai');
 chai.use(require('chai-as-promised'));
+chai.use(require('chai-datetime'));
 const faker = require('faker');
 
 function importTest(name, file) {

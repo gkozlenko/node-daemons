@@ -15,6 +15,7 @@ process.env.LOG4JS_CONFIG = path.join(__dirname, '..', 'log4js.json');
 const _ = require('lodash');
 
 let config = {
+    env: process.env.NODE_ENV,
     node_id: parseInt(process.env.NODE_ID || 0),
     database: {
         url: process.env.MYSQL_URI,
@@ -31,8 +32,11 @@ let config = {
 };
 
 // For sequelize-cli
-_.each(['development', 'production'], env => {
-    config[env] = config.database;
+_.each(['development', 'production', 'test'], env => {
+    config[env] = _.clone(config.database);
+    if (env === 'test') {
+        config[env]['url'] = process.env.MYSQL_URI_TEST;
+    }
 });
 
 module.exports = config;

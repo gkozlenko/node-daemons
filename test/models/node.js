@@ -25,8 +25,8 @@ describe('#check', function() {
 
     it('should change checked_at correctly', function() {
         return [
-            expect(node.checked_at).to.beforeTime(moment().add(1000, 'ms').toDate()),
-            expect(node.checked_at).to.afterTime(moment().subtract(1000, 'ms').toDate())
+            expect(node.checked_at).to.beforeTime(moment().add(3000, 'ms').toDate()),
+            expect(node.checked_at).to.afterTime(moment().subtract(3000, 'ms').toDate())
         ];
     });
 

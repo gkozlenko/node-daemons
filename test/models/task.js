@@ -62,8 +62,8 @@ describe('#fail', function() {
 
         it('should change start_at correctly', function() {
             return [
-                expect(task.start_at).to.beforeTime(moment(task.updated_at).add(delay + 1000, 'ms').toDate()),
-                expect(task.start_at).to.afterTime(moment(task.updated_at).add(delay - 1000, 'ms').toDate())
+                expect(task.start_at).to.beforeTime(moment().add(delay + 3000, 'ms').toDate()),
+                expect(task.start_at).to.afterTime(moment().add(delay - 3000, 'ms').toDate())
             ];
         });
 
@@ -133,8 +133,8 @@ describe('#check', function() {
 
     it('should change checked_at correctly', function() {
         return [
-            expect(task.checked_at).to.beforeTime(moment().add(1000, 'ms').toDate()),
-            expect(task.checked_at).to.afterTime(moment().subtract(1000, 'ms').toDate())
+            expect(task.checked_at).to.beforeTime(moment().add(3000, 'ms').toDate()),
+            expect(task.checked_at).to.afterTime(moment().subtract(3000, 'ms').toDate())
         ];
     });
 

@@ -4,6 +4,7 @@ const common = require('../common');
 const expect = common.expect;
 const faker = common.faker;
 
+const _ = require('lodash');
 const moment = require('moment');
 const models = require('../../models');
 
@@ -136,6 +137,53 @@ describe('#check', function() {
             expect(task.checked_at).to.beforeTime(moment().add(3000, 'ms').toDate()),
             expect(task.checked_at).to.afterTime(moment().subtract(3000, 'ms').toDate())
         ];
+    });
+
+});
+
+describe('.scope', function() {
+
+    describe('.forWork', function() {
+
+        let queue = 'fw-' + faker.lorem.word();
+        let nodeId = faker.random.number();
+        let otherTasks = [
+            // another queue
+            {queue: faker.lorem.word(), body: {}},
+            // another node
+            {queue: queue, node_id: nodeId + 1, body: {}},
+            // not pending tasks
+            {queue: queue, status: 'done', body: {}},
+            {queue: queue, status: 'working', body: {}},
+            {queue: queue, status: 'failure', body: {}},
+            // future tasks
+            {queue: queue, start_at: moment().add(10, 'm').toDate(), body: {}},
+            // past tasks
+            {queue: queue, finish_at: moment().subtract(10, 'm').toDate(), body: {}}
+        ];
+        let actualTasks = [
+            {queue: queue, body: {}},
+            {queue: queue, node_id: nodeId, body: {}},
+            {queue: queue, start_at: moment().subtract(10, 'm').toDate(), body: {}},
+            {queue: queue, finish_at: moment().add(10, 'm').toDate(), body: {}}
+        ];
+
+        before(function() {
+            return models.Task.bulkCreate(_.shuffle(_.concat(otherTasks, actualTasks))).then(function() {
+                //
+            });
+        });
+
+        it('should return right tasks', function() {
+            return models.Task.scope({
+                method: ['forWork', queue, nodeId]
+            }).findAll().then(function(rows) {
+                expect(rows.length).to.be.eq(actualTasks.length);
+                expect(_.map(rows, 'queue')).to.eql(_.times(actualTasks.length, _.constant(queue)));
+                expect(_.map(rows, 'status')).to.eql(_.times(actualTasks.length, _.constant('pending')));
+            });
+        });
+
     });
 
 });

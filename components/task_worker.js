@@ -5,7 +5,7 @@ const config = require('../config/config');
 const _ = require('lodash');
 const Promise = require('bluebird');
 const Worker = require('./worker');
-const WorkerStates = require('./worker_states');
+const WorkerConst = require('./worker_const');
 const models = require('../models');
 
 class TaskWorker extends Worker {
@@ -13,7 +13,7 @@ class TaskWorker extends Worker {
     constructor(name, conf) {
         super(name, conf);
         this.conf = _.defaults({}, this.conf, {
-            maxAttempts: 3,
+            maxAttempts: WorkerConst.MAX_ATTEMPTS,
             delayRatio: 300000,
             count: 1,
             queue: '',
@@ -84,15 +84,15 @@ class TaskWorker extends Worker {
     }
 
     _startLoop() {
-        this.state = WorkerStates.STATE_WORK;
+        this.state = WorkerConst.STATE_WORK;
         return Promise.resolve(this.loop()).catch(err => {
             this.logger.warn('Loop error:', err);
         }).finally(() => {
             if (this.count === 0) {
-                this.state = WorkerStates.STATE_IDLE;
+                this.state = WorkerConst.STATE_IDLE;
             }
             if (this.stopped && this.count === 0) {
-                this.state = WorkerStates.STATE_STOP;
+                this.state = WorkerConst.STATE_STOP;
                 this.emit('stop');
             } else {
                 this.timer = setTimeout(() => {

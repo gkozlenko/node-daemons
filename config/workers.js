@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = {
-    manager: {
+    task_manager: {
         enabled: true,
         sleep: 30000,
         maxUpdate: 30000,

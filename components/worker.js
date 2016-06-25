@@ -4,7 +4,7 @@ const _ = require('lodash');
 const Promise = require('bluebird');
 const log4js = require('log4js');
 const EventEmitter = require('events');
-const WorkerStates = require('./worker_states');
+const WorkerConst = require('./worker_const');
 
 class Worker extends EventEmitter {
 
@@ -23,19 +23,19 @@ class Worker extends EventEmitter {
     start() {
         this.logger.info('Start');
         this.stopped = false;
-        this.state = WorkerStates.STATE_IDLE;
+        this.state = WorkerConst.STATE_IDLE;
         return this._startLoop();
     }
 
     stop() {
         this.logger.info('Stop');
         this.stopped = true;
-        if (this.state === WorkerStates.STATE_IDLE) {
+        if (this.state === WorkerConst.STATE_IDLE) {
             if (this.timer) {
                 clearTimeout(this.timer);
                 this.timer = null;
             }
-            this.state = WorkerStates.STATE_STOP;
+            this.state = WorkerConst.STATE_STOP;
             this.emit('stop');
         }
     }
@@ -46,17 +46,17 @@ class Worker extends EventEmitter {
     loop() {}
 
     _startLoop() {
-        this.state = WorkerStates.STATE_WORK;
+        this.state = WorkerConst.STATE_WORK;
         return Promise.resolve(this.loop()).catch(err => {
             this.logger.warn('Loop error:', err);
         }).finally(() => {
-            this.state = WorkerStates.STATE_IDLE;
+            this.state = WorkerConst.STATE_IDLE;
             if (!this.stopped) {
                 this.timer = setTimeout(() => {
                     this._startLoop();
                 }, this.conf.sleep);
             } else {
-                this.state = WorkerStates.STATE_STOP;
+                this.state = WorkerConst.STATE_STOP;
                 this.emit('stop');
             }
         });

@@ -34,7 +34,7 @@ class TaskWorker extends Worker {
                         });
                     }, this.conf.update);
                     // Handle task
-                    this.handleTask(task.get({plain: true})).then(() => {
+                    Promise.resolve(this.handleTask(task.get({plain: true}))).then(() => {
                         return models.sequelize.transaction(t => {
                             return task.complete({transaction: t}).then(() => {
                                 this.logger.info('Task completed:', task.id);
@@ -42,7 +42,7 @@ class TaskWorker extends Worker {
                         });
                     }).catch(err => {
                         this.logger.warn('Handle error:', err);
-                        return this.delay(task).then(delay => {
+                        return Promise.resolve(this.delay(task)).then(delay => {
                             return models.sequelize.transaction(t => {
                                 return task.fail(delay, {transaction: t}).then(() => {
                                     this.logger.warn('Task failed:', task.id);
@@ -56,19 +56,19 @@ class TaskWorker extends Worker {
                     return null;
                 }
             });
-        } else {
-            return Promise.resolve();
         }
     }
 
-    handleTask() {
-        return Promise.resolve();
-    }
-    
+    /**
+     * @return Promise<any>|any value
+     */
+    handleTask() {}
+
+    /**
+     * @return Promise<int>|int value
+     */
     delay(task) {
-        return Promise.resolve().then(() => {
-            return task.attempts * this.conf.delayRatio;
-        });
+        return task.attempts * this.conf.delayRatio;
     }
 
     _getTask() {
@@ -85,7 +85,7 @@ class TaskWorker extends Worker {
 
     _startLoop() {
         this.state = WorkerStates.STATE_WORK;
-        return this.loop().catch(err => {
+        return Promise.resolve(this.loop()).catch(err => {
             this.logger.warn('Loop error:', err);
         }).finally(() => {
             if (this.count === 0) {

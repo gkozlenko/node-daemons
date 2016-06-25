@@ -1,9 +1,6 @@
 # IDE
 /.idea
 
-# Vagrant
-/.vagrant
-
 # Environment file
 /.env
 

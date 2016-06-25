@@ -40,13 +40,14 @@ class Worker extends EventEmitter {
         }
     }
 
-    loop() {
-        return Promise.resolve();
-    }
+    /**
+     * @return Promise<any>|any value
+     */
+    loop() {}
 
     _startLoop() {
         this.state = WorkerStates.STATE_WORK;
-        return this.loop().catch(err => {
+        return Promise.resolve(this.loop()).catch(err => {
             this.logger.warn('Loop error:', err);
         }).finally(() => {
             this.state = WorkerStates.STATE_IDLE;

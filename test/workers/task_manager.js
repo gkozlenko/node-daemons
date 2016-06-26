@@ -117,7 +117,7 @@ describe('#loop', function() {
             {queue: faker.lorem.word(), body: {}, status: 'failure', finish_at: moment().subtract(50000).toDate()}
         ];
         let actualTasks = [
-            {queue: queue, body: {}, status: 'done', checked_at: moment().subtract(3600001).toDate()},
+            {queue: queue, body: {}, status: 'done', checked_at: moment().subtract(3601000).toDate()},
             {queue: queue, body: {}, status: 'done', checked_at: moment().subtract(5000000).toDate()}
         ];
 

@@ -177,8 +177,8 @@ describe('.scope', function() {
                 method: ['forWork', queue, nodeId]
             }).findAll().then(function(rows) {
                 expect(rows.length).to.be.eq(actualTasks.length);
-                expect(_.map(rows, 'queue')).to.eql(_.times(actualTasks.length, _.constant(queue)));
-                expect(_.map(rows, 'status')).to.eql(_.times(actualTasks.length, _.constant('pending')));
+                expect(_.map(rows, 'queue')).have.members([queue]);
+                expect(_.map(rows, 'status')).have.members(['pending']);
             });
         });
 

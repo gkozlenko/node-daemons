@@ -15,4 +15,5 @@ describe('node-daemons', function() {
     });
     
     common.importTests('models', './models');
+    common.importTests('workers', './workers');
 });

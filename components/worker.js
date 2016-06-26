@@ -12,9 +12,13 @@ class Worker extends EventEmitter {
         super();
         this.name = name;
         this.conf = _.defaults({}, conf, {
-            sleep: 1000
+            sleep: 1000,
+            silence: false
         });
         this.logger = log4js.getLogger('worker-' + name);
+        if (this.conf.silence) {
+            this.logger.setLevel(log4js.levels.OFF);
+        }
         this.stopped = true;
         this.timer = null;
         this.state = null;

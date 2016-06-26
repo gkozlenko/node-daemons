@@ -22,7 +22,7 @@ class TaskManager extends Worker {
     loop() {
         return Promise.resolve()
             .then(() => {
-                return this._restoreFrozenTasks();
+                return this._failFrozenTasks();
             })
             .then(() => {
                 return this._restoreFailedTasks();
@@ -38,7 +38,7 @@ class TaskManager extends Worker {
             });
     }
     
-    _restoreFrozenTasks() {
+    _failFrozenTasks() {
         return models.Task.update({
             status: 'failure',
             attempts: models.sequelize.literal('attempts + 1')

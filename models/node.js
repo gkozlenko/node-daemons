@@ -2,33 +2,32 @@
 
 const moment = require('moment');
 
-module.exports = function(sequelize, Sequelize) {
-
+module.exports = function modelNode(sequelize, Sequelize) {
     return sequelize.define('Node', {
         id: {
             type: Sequelize.INTEGER,
             primaryKey: true,
-            autoIncrement: true
+            autoIncrement: true,
         },
         hostname: {
             type: Sequelize.STRING,
             allowNull: false,
-            unique: true
+            unique: true,
         },
         status: {
             type: Sequelize.ENUM,
             values: ['active', 'paused'],
             defaultValue: 'active',
-            allowNull: false
+            allowNull: false,
         },
         is_active: {
             type: Sequelize.BOOLEAN,
             defaultValue: false,
-            allowNull: false
+            allowNull: false,
         },
         checked_at: {
-            type: Sequelize.DATE
-        }
+            type: Sequelize.DATE,
+        },
     }, {
         tableName: 'nodes',
         freezeTableName: true,
@@ -39,24 +38,23 @@ module.exports = function(sequelize, Sequelize) {
             active: {
                 where: {
                     status: 'active',
-                    is_active: true
-                }
-            }
+                    is_active: true,
+                },
+            },
         },
 
         instanceMethods: {
-            check: function(options) {
+            check(options) {
                 this.is_active = true;
                 this.checked_at = moment().toDate();
                 return this.save(options);
-            }
+            },
         },
 
         classMethods: {
-            associate: function(models) {
-                models.Node.hasMany(models.Task, {foreignKey: 'node_id'});
-            }
-        }
+            associate(models) {
+                models.Node.hasMany(models.Task, { foreignKey: 'node_id' });
+            },
+        },
     });
-
 };

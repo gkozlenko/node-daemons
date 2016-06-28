@@ -13,9 +13,9 @@ class Worker extends EventEmitter {
         this.name = name;
         this.conf = _.defaults({}, conf, {
             sleep: 1000,
-            silence: false
+            silence: false,
         });
-        this.logger = log4js.getLogger('worker-' + name);
+        this.logger = log4js.getLogger(`worker-${name}`);
         if (this.conf.silence) {
             this.logger.setLevel(log4js.levels.OFF);
         }
@@ -28,7 +28,7 @@ class Worker extends EventEmitter {
         this.logger.info('Start');
         this.stopped = false;
         this.state = WorkerConst.STATE_IDLE;
-        return this._startLoop();
+        return this.startLoop();
     }
 
     stop() {
@@ -49,7 +49,7 @@ class Worker extends EventEmitter {
      */
     loop() {}
 
-    _startLoop() {
+    startLoop() {
         this.state = WorkerConst.STATE_WORK;
         return Promise.resolve(this.loop()).catch(err => {
             this.logger.warn('Loop error:', err);
@@ -57,7 +57,7 @@ class Worker extends EventEmitter {
             this.state = WorkerConst.STATE_IDLE;
             if (!this.stopped) {
                 this.timer = setTimeout(() => {
-                    this._startLoop();
+                    this.startLoop();
                 }, this.conf.sleep);
             } else {
                 this.state = WorkerConst.STATE_STOP;

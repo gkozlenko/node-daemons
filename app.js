@@ -11,51 +11,8 @@ const models = require('./models');
 
 let shutdownInterval = null;
 
-if (cluster.isMaster) {
-    models.Node.findOrCreate({
-        where: {
-            id: config.node_id
-        },
-        defaults: {
-            hostname: ip.address()
-        },
-        paranoid: false
-    }).then(() => {
-        logger.info('Start workers');
-        _.each(config.workers, (conf, name) => {
-            if (conf.enabled) {
-                startWorker(name);
-            }
-        });
-    });
-} else {
-    let name = process.env.WORKER_NAME;
-    let WorkerClass = require(path.join(__dirname, 'workers', name + '.js'));
-    let worker = null;
-    if (WorkerClass) {
-        worker = new WorkerClass(name, config.workers[name]);
-        worker.start();
-        worker.on('stop', () => {
-            process.exit();
-        });
-    }
-    process.on('message', message => {
-        if ('shutdown' === message) {
-            if (worker) {
-                worker.stop();
-            } else {
-                process.exit();
-            }
-        }
-    });
-}
-
-// Shutdown
-process.on('SIGTERM', shutdownCluster);
-process.on('SIGINT', shutdownCluster);
-
 function startWorker(name) {
-    let worker = cluster.fork({WORKER_NAME: name}).on('online', () => {
+    const worker = cluster.fork({ WORKER_NAME: name }).on('online', () => {
         logger.info('Start %s worker #%d.', name, worker.id);
     }).on('exit', status => {
         if ((worker.exitedAfterDisconnect || worker.suicide) === true || status === 0) {
@@ -89,3 +46,47 @@ function shutdownCluster() {
         }
     }
 }
+
+if (cluster.isMaster) {
+    models.Node.findOrCreate({
+        where: {
+            id: config.node_id,
+        },
+        defaults: {
+            hostname: ip.address(),
+        },
+        paranoid: false,
+    }).then(() => {
+        logger.info('Start workers');
+        _.each(config.workers, (conf, name) => {
+            if (conf.enabled) {
+                startWorker(name);
+            }
+        });
+    });
+} else {
+    const name = process.env.WORKER_NAME;
+    /* eslint global-require: 0 */
+    const WorkerClass = require(path.join(__dirname, 'workers', `${name}.js`));
+    let worker = null;
+    if (WorkerClass) {
+        worker = new WorkerClass(name, config.workers[name]);
+        worker.start();
+        worker.on('stop', () => {
+            process.exit();
+        });
+    }
+    process.on('message', message => {
+        if (message === 'shutdown') {
+            if (worker) {
+                worker.stop();
+            } else {
+                process.exit();
+            }
+        }
+    });
+}
+
+// Shutdown
+process.on('SIGTERM', shutdownCluster);
+process.on('SIGINT', shutdownCluster);

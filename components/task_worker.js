@@ -17,26 +17,26 @@ class TaskWorker extends Worker {
             delayRatio: 300000,
             count: 1,
             queue: '',
-            update: 10000
+            update: 10000,
         });
         this.count = 0;
     }
 
     loop() {
         if (this.count < this.conf.count && !this.stopped) {
-            return this._getTask().then(task => {
+            return this.getTask().then(task => {
                 if (task) {
                     this.count++;
                     // Touch task
-                    let interval = setInterval(() => {
+                    const interval = setInterval(() => {
                         return models.sequelize.transaction(t => {
-                            return task.check({transaction: t});
+                            return task.check({ transaction: t });
                         });
                     }, this.conf.update);
                     // Handle task
-                    Promise.resolve(this.handleTask(task.get({plain: true}))).then(() => {
+                    Promise.resolve(this.handleTask(task.get({ plain: true }))).then(() => {
                         return models.sequelize.transaction(t => {
-                            return task.complete({transaction: t}).then(() => {
+                            return task.complete({ transaction: t }).then(() => {
                                 this.logger.info('Task completed:', task.id);
                             });
                         });
@@ -44,7 +44,7 @@ class TaskWorker extends Worker {
                         this.logger.warn('Handle error:', err);
                         return Promise.resolve(this.delay(task)).then(delay => {
                             return models.sequelize.transaction(t => {
-                                return task.fail(delay, {transaction: t}).then(() => {
+                                return task.fail(delay, { transaction: t }).then(() => {
                                     this.logger.warn('Task failed:', task.id);
                                 });
                             });
@@ -53,10 +53,11 @@ class TaskWorker extends Worker {
                         clearInterval(interval);
                         this.count--;
                     }).done();
-                    return null;
                 }
+                return null;
             });
         }
+        return null;
     }
 
     /**
@@ -71,19 +72,20 @@ class TaskWorker extends Worker {
         return task.attempts * this.conf.delayRatio;
     }
 
-    _getTask() {
-        return models.sequelize.transaction({autocommit: false}, t => {
+    getTask() {
+        return models.sequelize.transaction({ autocommit: false }, t => {
             return models.Task.scope({
-                method: ['forWork', this.conf.queue, config.node_id]
-            }).find({transaction: t, lock: t.LOCK.UPDATE}).then(task => {
-                if (task) {
-                    return task.work(config.node_id, {transaction: t});
-                }
+                method: ['forWork', this.conf.queue, config.node_id],
+            }).find({
+                transaction: t,
+                lock: t.LOCK.UPDATE,
+            }).then(task => {
+                return task ? task.work(config.node_id, { transaction: t }) : null;
             });
         });
     }
 
-    _startLoop() {
+    startLoop() {
         this.state = WorkerConst.STATE_WORK;
         return Promise.resolve(this.loop()).catch(err => {
             this.logger.warn('Loop error:', err);
@@ -96,7 +98,7 @@ class TaskWorker extends Worker {
                 this.emit('stop');
             } else {
                 this.timer = setTimeout(() => {
-                    this._startLoop();
+                    this.startLoop();
                 }, this.conf.sleep);
             }
         });

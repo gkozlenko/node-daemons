@@ -15,40 +15,40 @@ class TaskManager extends Worker {
         this.conf = _.defaults({}, this.conf, {
             maxUpdate: 30000,       // 30 seconds
             maxCompleted: 3600000,  // 1 hour
-            maxFailed: 259200000    // 3 days
+            maxFailed: 259200000,   // 3 days
         });
     }
 
     loop() {
         return Promise.resolve()
             .then(() => {
-                return this._failFrozenTasks();
+                return this.failFrozenTasks();
             })
             .then(() => {
-                return this._restoreFailedTasks();
+                return this.restoreFailedTasks();
             })
             .then(() => {
-                return this._deleteDeadTasks();
+                return this.deleteDeadTasks();
             })
             .then(() => {
-                return this._deleteCompletedTasks();
+                return this.deleteCompletedTasks();
             })
             .then(() => {
-                return this._deleteFailedTasks();
+                return this.deleteFailedTasks();
             });
     }
-    
-    _failFrozenTasks() {
+
+    failFrozenTasks() {
         return models.Task.update({
             status: 'failure',
-            attempts: models.sequelize.literal('attempts + 1')
+            attempts: models.sequelize.literal('attempts + 1'),
         }, {
             where: {
                 status: 'working',
                 checked_at: {
-                    $lt: moment().subtract(this.conf.maxUpdate).toDate()
-                }
-            }
+                    $lt: moment().subtract(this.conf.maxUpdate).toDate(),
+                },
+            },
         }).spread(count => {
             if (count > 0) {
                 this.logger.info('Restore frozen tasks:', count);
@@ -56,16 +56,16 @@ class TaskManager extends Worker {
         });
     }
 
-    _restoreFailedTasks() {
+    restoreFailedTasks() {
         return models.Task.update({
             status: 'pending',
             worker_node_id: null,
-            worker_started_at: null
+            worker_started_at: null,
         }, {
-            where: [
-                {status: 'failure'},
-                {$or: this._failedTasksConditions()}
-            ]
+            where: {
+                status: 'failure',
+                $or: this.failedTasksConditions(),
+            },
         }).spread(count => {
             if (count > 0) {
                 this.logger.info('Restore failure tasks:', count);
@@ -73,14 +73,14 @@ class TaskManager extends Worker {
         });
     }
 
-    _deleteDeadTasks() {
+    deleteDeadTasks() {
         return models.Task.destroy({
             where: {
                 status: 'pending',
                 finish_at: {
-                    $lt: moment().toDate()
-                }
-            }
+                    $lt: moment().toDate(),
+                },
+            },
         }).then(count => {
             if (count > 0) {
                 this.logger.info('Delete dead tasks:', count);
@@ -88,14 +88,14 @@ class TaskManager extends Worker {
         });
     }
 
-    _deleteCompletedTasks() {
+    deleteCompletedTasks() {
         return models.Task.destroy({
             where: {
                 status: 'done',
                 checked_at: {
-                    $lt: moment().subtract(this.conf.maxCompleted).toDate()
-                }
-            }
+                    $lt: moment().subtract(this.conf.maxCompleted).toDate(),
+                },
+            },
         }).then(count => {
             if (count > 0) {
                 this.logger.info('Delete completed tasks:', count);
@@ -103,15 +103,15 @@ class TaskManager extends Worker {
         });
     }
 
-    _deleteFailedTasks() {
+    deleteFailedTasks() {
         return models.Task.destroy({
-            where: [
-                {status: 'failure'},
-                {$or: this._failedTasksConditions()},
-                {checked_at: {
-                    $lt: moment().subtract(this.conf.maxFailed).toDate()
-                }}
-            ]
+            where: {
+                status: 'failure',
+                checked_at: {
+                    $lt: moment().subtract(this.conf.maxFailed).toDate(),
+                },
+                $or: this.failedTasksConditions(),
+            },
         }).then(count => {
             if (count > 0) {
                 this.logger.info('Delete failed tasks:', count);
@@ -119,15 +119,15 @@ class TaskManager extends Worker {
         });
     }
 
-    _failedTasksConditions() {
+    failedTasksConditions() {
         return _.chain(config.workers).filter(worker => {
             return !!worker.queue;
         }).map(worker => {
             return {
                 queue: worker.queue,
                 attempts: {
-                    $lt: worker.maxAttempts || WorkerConst.MAX_ATTEMPTS
-                }
+                    $lt: worker.maxAttempts || WorkerConst.MAX_ATTEMPTS,
+                },
             };
         }).value();
     }

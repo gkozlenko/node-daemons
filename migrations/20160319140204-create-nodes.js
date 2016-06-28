@@ -1,50 +1,50 @@
 'use strict';
 
 module.exports = {
-    up: function(queryInterface, Sequelize) {
+    up(queryInterface, Sequelize) {
         return queryInterface.createTable('nodes', {
             id: {
                 type: Sequelize.INTEGER,
                 primaryKey: true,
-                autoIncrement: true
+                autoIncrement: true,
             },
             hostname: {
                 type: Sequelize.STRING,
                 allowNull: false,
-                unique: true
+                unique: true,
             },
             status: {
                 type: Sequelize.ENUM,
                 values: ['active', 'paused'],
                 defaultValue: 'active',
-                allowNull: false
+                allowNull: false,
             },
             is_active: {
                 type: Sequelize.BOOLEAN,
                 defaultValue: false,
-                allowNull: false
+                allowNull: false,
             },
             checked_at: {
-                type: Sequelize.DATE
+                type: Sequelize.DATE,
             },
             created_at: {
-                type: Sequelize.DATE
+                type: Sequelize.DATE,
             },
             updated_at: {
-                type: Sequelize.DATE
+                type: Sequelize.DATE,
             },
             deleted_at: {
-                type: Sequelize.DATE
-            }
+                type: Sequelize.DATE,
+            },
         }, {
             charset: 'utf8',
-            engine: 'InnoDB'
-        }).then(function() {
+            engine: 'InnoDB',
+        }).then(() => {
             return queryInterface.addIndex('nodes', ['status', 'is_active']);
         });
     },
 
-    down: function(queryInterface) {
+    down(queryInterface) {
         return queryInterface.dropTable('nodes');
-    }
+    },
 };

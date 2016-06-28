@@ -22,7 +22,7 @@ describe('#loop', function() {
         });
     });
 
-    describe('#_failFrozenTasks', function() {
+    describe('#failFrozenTasks', function() {
 
         let otherTasks = [
             {queue: faker.lorem.word(), body: {}},
@@ -41,7 +41,7 @@ describe('#loop', function() {
         before(function() {
             return models.Task.destroy({truncate: true}).then(() => {
                 return models.Task.bulkCreate(_.shuffle(_.concat(otherTasks, actualTasks))).then(() => {
-                    return worker._failFrozenTasks();
+                    return worker.failFrozenTasks();
                 });
             });
         });
@@ -59,13 +59,13 @@ describe('#loop', function() {
 
     });
 
-    describe('#_restoreFailedTasks', function() {
+    describe('#restoreFailedTasks', function() {
 
         it('should restore failed tasks');
 
     });
 
-    describe('#_deleteDeadTasks', function() {
+    describe('#deleteDeadTasks', function() {
 
         let queue = 'dt-' + faker.lorem.word();
         let otherTasks = [
@@ -87,7 +87,7 @@ describe('#loop', function() {
         before(function() {
             return models.Task.destroy({truncate: true}).then(() => {
                 return models.Task.bulkCreate(_.shuffle(_.concat(otherTasks, actualTasks))).then(() => {
-                    return worker._deleteDeadTasks();
+                    return worker.deleteDeadTasks();
                 });
             });
         });
@@ -101,7 +101,7 @@ describe('#loop', function() {
 
     });
 
-    describe('#_deleteCompletedTasks', function() {
+    describe('#deleteCompletedTasks', function() {
 
         let queue = 'ct-' + faker.lorem.word();
         let otherTasks = [
@@ -124,7 +124,7 @@ describe('#loop', function() {
         before(function() {
             return models.Task.destroy({truncate: true}).then(() => {
                 return models.Task.bulkCreate(_.shuffle(_.concat(otherTasks, actualTasks))).then(() => {
-                    return worker._deleteCompletedTasks();
+                    return worker.deleteCompletedTasks();
                 });
             });
         });
@@ -138,7 +138,7 @@ describe('#loop', function() {
 
     });
 
-    describe('#_deleteFailedTasks', function() {
+    describe('#deleteFailedTasks', function() {
 
         it('should delete failed tasks');
 

@@ -9,59 +9,59 @@ const moment = require('moment');
 const models = require('../../models');
 
 function invokeMethod(instanceParams, method, methodArguments) {
-    return models.Task.create(instanceParams).then(function(value) {
+    return models.Task.create(instanceParams).then(function (value) {
         return value[method].apply(value, methodArguments || []);
-    }).then(function(value) {
+    }).then(function (value) {
         return value.reload();
     });
 }
 
-describe('#fail', function() {
+describe('#fail', function () {
 
     let task = null;
     let attempts = faker.random.number(10);
 
-    before(function() {
+    before(function () {
         return invokeMethod({
             queue: faker.lorem.word(),
             body: {},
             attempts: attempts
-        }, 'fail').then(function(value) {
+        }, 'fail').then(function (value) {
             task = value;
         });
     });
 
-    it('should increase number of attempts', function() {
+    it('should increase number of attempts', function () {
         return expect(task.attempts).to.be.eq(attempts + 1);
     });
 
-    it('should change status', function() {
+    it('should change status', function () {
         return expect(task.status).to.be.eq('failure');
     });
 
-    it('should not change start_at', function() {
+    it('should not change start_at', function () {
         return expect(task.start_at).to.be.null;
     });
 
-    describe('with delay', function() {
+    describe('with delay', function () {
 
         let delay = faker.random.number({min: 100000, max: 999999});
 
-        before(function() {
+        before(function () {
             return invokeMethod({
                 queue: faker.lorem.word(),
                 body: {},
                 attempts: attempts
-            }, 'fail', [delay]).then(function(value) {
+            }, 'fail', [delay]).then(function (value) {
                 task = value;
             });
         });
 
-        it('should change start_at', function() {
+        it('should change start_at', function () {
             return expect(task.start_at).to.be.ok;
         });
 
-        it('should change start_at correctly', function() {
+        it('should change start_at correctly', function () {
             return [
                 expect(task.start_at).to.beforeTime(moment().add(delay + 3000, 'ms').toDate()),
                 expect(task.start_at).to.afterTime(moment().add(delay - 3000, 'ms').toDate())
@@ -72,67 +72,67 @@ describe('#fail', function() {
 
 });
 
-describe('#complete', function() {
+describe('#complete', function () {
 
     let task = null;
 
-    before(function() {
+    before(function () {
         return invokeMethod({
             queue: faker.lorem.word(),
             body: {}
-        }, 'complete').then(function(value) {
+        }, 'complete').then(function (value) {
             task = value;
         });
     });
 
-    it('should change status', function() {
+    it('should change status', function () {
         return expect(task.status).to.be.eq('done');
     });
 
 });
 
-describe('#work', function() {
+describe('#work', function () {
 
     let task = null;
     let nodeId = faker.random.number();
 
-    before(function() {
+    before(function () {
         return invokeMethod({
             queue: faker.lorem.word(),
             body: {}
-        }, 'work', [nodeId]).then(function(value) {
+        }, 'work', [nodeId]).then(function (value) {
             task = value;
         });
     });
 
-    it('should change status', function() {
+    it('should change status', function () {
         return expect(task.status).to.be.eq('working');
     });
 
-    it('should assign worker_node_id', function() {
+    it('should assign worker_node_id', function () {
         return expect(task.worker_node_id).to.be.eq(nodeId);
     });
 
-    it('should change worker_started_at', function() {
+    it('should change worker_started_at', function () {
         return expect(task.worker_started_at).to.be.ok;
     });
 
 });
 
-describe('#check', function() {
+describe('#check', function () {
 
     let task = null;
 
-    before(function() {
+    before(function () {
         return invokeMethod({
             queue: faker.lorem.word(),
             body: {}
-        }, 'check').then(function(value) {
+        }, 'check').then(function (value) {
             task = value;
         });
     });
 
-    it('should change checked_at correctly', function() {
+    it('should change checked_at correctly', function () {
         return [
             expect(task.checked_at).to.beforeTime(moment().add(3000, 'ms').toDate()),
             expect(task.checked_at).to.afterTime(moment().subtract(3000, 'ms').toDate())
@@ -141,9 +141,9 @@ describe('#check', function() {
 
 });
 
-describe('.scope', function() {
+describe('.scope', function () {
 
-    describe('.forWork', function() {
+    describe('.forWork', function () {
 
         let queue = 'fw-' + faker.lorem.word();
         let nodeId = faker.random.number();
@@ -168,17 +168,17 @@ describe('.scope', function() {
             {queue: queue, finish_at: moment().add(10, 'm').toDate(), body: {}}
         ];
 
-        before(function() {
+        before(function () {
             return models.Task.bulkCreate(_.shuffle(_.concat(otherTasks, actualTasks)));
         });
 
-        it('should return right tasks', function() {
+        it('should return right tasks', function () {
             return models.Task.scope({
                 method: ['forWork', queue, nodeId]
-            }).findAll().then(function(rows) {
+            }).findAll().then(function (rows) {
                 expect(rows.length).to.be.eq(actualTasks.length);
-                expect(_.map(rows, 'queue')).have.members([queue]);
-                expect(_.map(rows, 'status')).have.members(['pending']);
+                expect(_.map(rows, 'queue')).have.members(_.times(rows.length, _.constant(queue)));
+                expect(_.map(rows, 'status')).have.members(_.times(rows.length, _.constant('pending')));
             });
         });
 

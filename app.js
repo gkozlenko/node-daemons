@@ -12,7 +12,7 @@ const models = require('./models');
 let shutdownInterval = null;
 
 function startWorker(name) {
-    const worker = cluster.fork({ WORKER_NAME: name }).on('online', () => {
+    const worker = cluster.fork({WORKER_NAME: name}).on('online', () => {
         logger.info('Start %s worker #%d.', name, worker.id);
     }).on('exit', status => {
         if ((worker.exitedAfterDisconnect || worker.suicide) === true || status === 0) {
@@ -66,7 +66,6 @@ if (cluster.isMaster) {
     });
 } else {
     const name = process.env.WORKER_NAME;
-    /* eslint global-require: 0 */
     const WorkerClass = require(path.join(__dirname, 'workers', `${name}.js`));
     let worker = null;
     if (WorkerClass) {

@@ -8,13 +8,13 @@ chai.use(require('chai-datetime'));
 const faker = require('faker');
 
 function importTest(name, file) {
-    describe(name, function() {
+    describe(name, function () {
         require(path.join(__dirname, file));
     });
 }
 
 function importTests(name, dir) {
-    describe(name, function() {
+    describe(name, function () {
         fs.readdirSync(path.join(__dirname, dir)).filter(file => {
             return (file.indexOf('.') !== 0) && (file.slice(-3) === '.js');
         }).forEach(file => {

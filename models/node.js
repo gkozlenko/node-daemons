@@ -53,7 +53,7 @@ module.exports = function modelNode(sequelize, Sequelize) {
 
         classMethods: {
             associate(models) {
-                models.Node.hasMany(models.Task, { foreignKey: 'node_id' });
+                models.Node.hasMany(models.Task, {foreignKey: 'node_id'});
             },
         },
     });

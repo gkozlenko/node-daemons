@@ -135,7 +135,7 @@ module.exports = function modelTask(sequelize, Sequelize) {
 
         classMethods: {
             associate(models) {
-                models.Task.belongsTo(models.Node, { foreignKey: 'node_id' });
+                models.Task.belongsTo(models.Node, {foreignKey: 'node_id'});
             },
         },
     });

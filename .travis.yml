@@ -9,9 +9,10 @@ services:
   - mysql
 
 env:
-  - CC_TEST_REPORTER_ID=f33acea34caf4303764b7d77cd78b0d328a3b6447d050723fc0ffeff2b031212
-  - MYSQL_URI_TEST="mysql://root@localhost:3306/node_daemons_test"
-  - NODE_ID="1"
+  global:
+    - CC_TEST_REPORTER_ID=f33acea34caf4303764b7d77cd78b0d328a3b6447d050723fc0ffeff2b031212
+    - MYSQL_URI_TEST="mysql://root@localhost:3306/node_daemons_test"
+    - NODE_ID="1"
 
 cache:
   directories:

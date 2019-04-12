@@ -28,5 +28,5 @@ module.exports = {
     expect: chai.expect,
     faker: faker,
     importTest: importTest,
-    importTests: importTests
+    importTests: importTests,
 };

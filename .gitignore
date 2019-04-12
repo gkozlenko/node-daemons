@@ -1,13 +1,6 @@
-# IDE
-/.idea
-
-# Environment file
-/.env
-
-# Logs dir
-/logs/*
-!/logs/.gitkeep
-/*.log
-
-# 3rd party modules dir
-/node_modules
+.idea
+node_modules
+*.log
+.env
+.nyc_output
+coverage

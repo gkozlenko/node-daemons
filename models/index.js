@@ -4,13 +4,13 @@ const config = require('../config/config');
 const _ = require('lodash');
 const fs = require('fs');
 const path = require('path');
-const logger = require('log4js').getLogger('sequelize');
+const logger = require('intel').getLogger('sequelize');
 const Sequelize = require('sequelize');
 
 const dbConf = config[config.env] || config.database;
 const sequelize = new Sequelize(dbConf.url, _.merge({}, dbConf, {
-    logging: config.env !== 'test' ? function dbLogger() {
-        logger.debug.apply(logger, arguments);
+    logging: config.env !== 'test' ? function dbLogger(message) {
+        logger.debug(message);
     } : false,
 }));
 const db = {};

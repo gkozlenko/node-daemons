@@ -18,7 +18,7 @@ describe('#loop', function () {
             silence: true,
             maxUpdate: 30000,
             maxCompleted: 3600000, // 1 hour
-            maxFailed: 259200000 // 3 days
+            maxFailed: 259200000, // 3 days
         });
     });
 
@@ -31,7 +31,7 @@ describe('#loop', function () {
             {queue: faker.lorem.word(), body: {}, status: 'working', checked_at: moment().subtract(10000).toDate()},
             {queue: faker.lorem.word(), body: {}, status: 'working', checked_at: moment().add(50000).toDate()},
             {queue: faker.lorem.word(), body: {}, status: 'pending', checked_at: moment().subtract(50000).toDate()},
-            {queue: faker.lorem.word(), body: {}, status: 'done', checked_at: moment().subtract(50000).toDate()}
+            {queue: faker.lorem.word(), body: {}, status: 'done', checked_at: moment().subtract(50000).toDate()},
         ];
         let actualTasks = [
             {queue: faker.lorem.word(), body: {}, status: 'working', checked_at: moment().subtract(50000).toDate()},
@@ -40,8 +40,8 @@ describe('#loop', function () {
                 body: {},
                 status: 'working',
                 checked_at: moment().subtract(150000).toDate(),
-                attempts: 2
-            }
+                attempts: 2,
+            },
         ];
 
         before(function () {
@@ -55,8 +55,8 @@ describe('#loop', function () {
         it('should fail frozen tasks', function () {
             return models.Task.findAll({
                 where: {
-                    status: 'failure'
-                }
+                    status: 'failure',
+                },
             }).then(function (rows) {
                 expect(rows.length).to.be.eq(actualTasks.length);
                 expect(_.map(rows, 'attempts')).have.members([1, 3]);
@@ -83,11 +83,11 @@ describe('#loop', function () {
             {queue: faker.lorem.word(), body: {}, status: 'pending', checked_at: moment().subtract(50000).toDate()},
             {queue: faker.lorem.word(), body: {}, status: 'done', checked_at: moment().subtract(50000).toDate()},
             {queue: faker.lorem.word(), body: {}, status: 'done', finish_at: moment().subtract(50000).toDate()},
-            {queue: faker.lorem.word(), body: {}, status: 'failure', finish_at: moment().subtract(50000).toDate()}
+            {queue: faker.lorem.word(), body: {}, status: 'failure', finish_at: moment().subtract(50000).toDate()},
         ];
         let actualTasks = [
             {queue: queue, body: {}, status: 'pending', finish_at: moment().subtract(1000).toDate()},
-            {queue: queue, body: {}, status: 'pending', finish_at: moment().subtract(150000).toDate()}
+            {queue: queue, body: {}, status: 'pending', finish_at: moment().subtract(150000).toDate()},
         ];
 
         before(function () {
@@ -120,11 +120,11 @@ describe('#loop', function () {
             {queue: faker.lorem.word(), body: {}, status: 'done', checked_at: moment().subtract(50000).toDate()},
             {queue: faker.lorem.word(), body: {}, status: 'done', checked_at: moment().add(5000000).toDate()},
             {queue: faker.lorem.word(), body: {}, status: 'done', finish_at: moment().subtract(50000).toDate()},
-            {queue: faker.lorem.word(), body: {}, status: 'failure', finish_at: moment().subtract(50000).toDate()}
+            {queue: faker.lorem.word(), body: {}, status: 'failure', finish_at: moment().subtract(50000).toDate()},
         ];
         let actualTasks = [
             {queue: queue, body: {}, status: 'done', checked_at: moment().subtract(3601000).toDate()},
-            {queue: queue, body: {}, status: 'done', checked_at: moment().subtract(5000000).toDate()}
+            {queue: queue, body: {}, status: 'done', checked_at: moment().subtract(5000000).toDate()},
         ];
 
         before(function () {

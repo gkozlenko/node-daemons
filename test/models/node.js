@@ -13,7 +13,7 @@ describe('#check', function () {
 
     before(function () {
         return models.Node.create({
-            hostname: faker.internet.domainName()
+            hostname: faker.internet.domainName(),
         }).then(function (value) {
             return value.check();
         }).then(function (value) {
@@ -26,7 +26,7 @@ describe('#check', function () {
     it('should change checked_at correctly', function () {
         return [
             expect(node.checked_at).to.beforeTime(moment().add(3000, 'ms').toDate()),
-            expect(node.checked_at).to.afterTime(moment().subtract(3000, 'ms').toDate())
+            expect(node.checked_at).to.afterTime(moment().subtract(3000, 'ms').toDate()),
         ];
     });
 

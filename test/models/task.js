@@ -25,7 +25,7 @@ describe('#fail', function () {
         return invokeMethod({
             queue: faker.lorem.word(),
             body: {},
-            attempts: attempts
+            attempts: attempts,
         }, 'fail').then(function (value) {
             task = value;
         });
@@ -51,7 +51,7 @@ describe('#fail', function () {
             return invokeMethod({
                 queue: faker.lorem.word(),
                 body: {},
-                attempts: attempts
+                attempts: attempts,
             }, 'fail', [delay]).then(function (value) {
                 task = value;
             });
@@ -64,7 +64,7 @@ describe('#fail', function () {
         it('should change start_at correctly', function () {
             return [
                 expect(task.start_at).to.beforeTime(moment().add(delay + 3000, 'ms').toDate()),
-                expect(task.start_at).to.afterTime(moment().add(delay - 3000, 'ms').toDate())
+                expect(task.start_at).to.afterTime(moment().add(delay - 3000, 'ms').toDate()),
             ];
         });
 
@@ -79,7 +79,7 @@ describe('#complete', function () {
     before(function () {
         return invokeMethod({
             queue: faker.lorem.word(),
-            body: {}
+            body: {},
         }, 'complete').then(function (value) {
             task = value;
         });
@@ -99,7 +99,7 @@ describe('#work', function () {
     before(function () {
         return invokeMethod({
             queue: faker.lorem.word(),
-            body: {}
+            body: {},
         }, 'work', [nodeId]).then(function (value) {
             task = value;
         });
@@ -126,7 +126,7 @@ describe('#check', function () {
     before(function () {
         return invokeMethod({
             queue: faker.lorem.word(),
-            body: {}
+            body: {},
         }, 'check').then(function (value) {
             task = value;
         });
@@ -135,7 +135,7 @@ describe('#check', function () {
     it('should change checked_at correctly', function () {
         return [
             expect(task.checked_at).to.beforeTime(moment().add(3000, 'ms').toDate()),
-            expect(task.checked_at).to.afterTime(moment().subtract(3000, 'ms').toDate())
+            expect(task.checked_at).to.afterTime(moment().subtract(3000, 'ms').toDate()),
         ];
     });
 
@@ -159,13 +159,13 @@ describe('.scope', function () {
             // future tasks
             {queue: queue, start_at: moment().add(10, 'm').toDate(), body: {}},
             // past tasks
-            {queue: queue, finish_at: moment().subtract(10, 'm').toDate(), body: {}}
+            {queue: queue, finish_at: moment().subtract(10, 'm').toDate(), body: {}},
         ];
         let actualTasks = [
             {queue: queue, body: {}},
             {queue: queue, node_id: nodeId, body: {}},
             {queue: queue, start_at: moment().subtract(10, 'm').toDate(), body: {}},
-            {queue: queue, finish_at: moment().add(10, 'm').toDate(), body: {}}
+            {queue: queue, finish_at: moment().add(10, 'm').toDate(), body: {}},
         ];
 
         before(function () {
@@ -174,7 +174,7 @@ describe('.scope', function () {
 
         it('should return right tasks', function () {
             return models.Task.scope({
-                method: ['forWork', queue, nodeId]
+                method: ['forWork', queue, nodeId],
             }).findAll().then(function (rows) {
                 expect(rows.length).to.be.eq(actualTasks.length);
                 expect(_.map(rows, 'queue')).have.members(_.times(rows.length, _.constant(queue)));

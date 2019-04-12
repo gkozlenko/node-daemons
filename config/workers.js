@@ -9,7 +9,7 @@ module.exports = {
         maxFailed: 259200000, // 3 days
     },
     sample: {
-        enabled: false,
+        enabled: true,
         sleep: 5000,
         count: 2,
         queue: 'sample',

@@ -76,7 +76,7 @@ class TaskWorker extends Worker {
         return models.sequelize.transaction({ autocommit: false }, t => {
             return models.Task.scope({
                 method: ['forWork', this.conf.queue, config.node_id],
-            }).find({
+            }).findOne({
                 transaction: t,
                 lock: t.LOCK.UPDATE,
             }).then(task => {

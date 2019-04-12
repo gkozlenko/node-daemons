@@ -4,6 +4,7 @@ const config = require('../config/config');
 const _ = require('lodash');
 const moment = require('moment');
 const Promise = require('bluebird');
+const Sequelize = require('sequelize');
 const Worker = require('../components/worker');
 const WorkerConst = require('../components/worker_const');
 const models = require('../models');
@@ -46,7 +47,7 @@ class TaskManager extends Worker {
             where: {
                 status: 'working',
                 checked_at: {
-                    $lt: moment().subtract(this.conf.maxUpdate).toDate(),
+                    [Sequelize.Op.lt]: moment().subtract(this.conf.maxUpdate).toDate(),
                 },
             },
         }).spread(count => {
@@ -64,7 +65,7 @@ class TaskManager extends Worker {
         }, {
             where: {
                 status: 'failure',
-                $or: this.failedTasksConditions(),
+                [Sequelize.Op.or]: this.failedTasksConditions(),
             },
         }).spread(count => {
             if (count > 0) {
@@ -78,7 +79,7 @@ class TaskManager extends Worker {
             where: {
                 status: 'pending',
                 finish_at: {
-                    $lt: moment().toDate(),
+                    [Sequelize.Op.lt]: moment().toDate(),
                 },
             },
         }).then(count => {
@@ -93,7 +94,7 @@ class TaskManager extends Worker {
             where: {
                 status: 'done',
                 checked_at: {
-                    $lt: moment().subtract(this.conf.maxCompleted).toDate(),
+                    [Sequelize.Op.lt]: moment().subtract(this.conf.maxCompleted).toDate(),
                 },
             },
         }).then(count => {
@@ -108,9 +109,9 @@ class TaskManager extends Worker {
             where: {
                 status: 'failure',
                 checked_at: {
-                    $lt: moment().subtract(this.conf.maxFailed).toDate(),
+                    [Sequelize.Op.lt]: moment().subtract(this.conf.maxFailed).toDate(),
                 },
-                $or: this.failedTasksConditions(),
+                [Sequelize.Op.or]: this.failedTasksConditions(),
             },
         }).then(count => {
             if (count > 0) {
@@ -126,7 +127,7 @@ class TaskManager extends Worker {
             return {
                 queue: worker.queue,
                 attempts: {
-                    $lt: worker.maxAttempts || WorkerConst.MAX_ATTEMPTS,
+                    [Sequelize.Op.lt]: worker.maxAttempts || WorkerConst.MAX_ATTEMPTS,
                 },
             };
         }).value();

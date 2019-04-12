@@ -1,39 +1,40 @@
 'use strict';
 
 const moment = require('moment');
+const Sequelize = require('sequelize');
 
-module.exports = function modelTask(sequelize, Sequelize) {
-    return sequelize.define('Task', {
+module.exports = function modelTask(sequelize, DataTypes) {
+    const Task = sequelize.define('Task', {
         id: {
-            type: Sequelize.INTEGER,
+            type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
         },
         node_id: {
-            type: Sequelize.INTEGER,
+            type: DataTypes.INTEGER,
         },
         queue: {
-            type: Sequelize.STRING,
+            type: DataTypes.STRING,
             allowNull: false,
         },
         status: {
-            type: Sequelize.ENUM,
+            type: DataTypes.ENUM,
             values: ['pending', 'working', 'done', 'failure'],
             defaultValue: 'pending',
             allowNull: false,
         },
         attempts: {
-            type: Sequelize.INTEGER,
+            type: DataTypes.INTEGER,
             defaultValue: 0,
             allowNull: false,
         },
         priority: {
-            type: Sequelize.INTEGER,
+            type: DataTypes.INTEGER,
             defaultValue: 10,
             allowNull: false,
         },
         body: {
-            type: Sequelize.TEXT,
+            type: DataTypes.TEXT,
             set(body) {
                 return this.setDataValue('body', JSON.stringify(body));
             },
@@ -46,19 +47,19 @@ module.exports = function modelTask(sequelize, Sequelize) {
             },
         },
         start_at: {
-            type: Sequelize.DATE,
+            type: DataTypes.DATE,
         },
         finish_at: {
-            type: Sequelize.DATE,
+            type: DataTypes.DATE,
         },
         worker_node_id: {
-            type: Sequelize.INTEGER,
+            type: DataTypes.INTEGER,
         },
         worker_started_at: {
-            type: Sequelize.DATE,
+            type: DataTypes.DATE,
         },
         checked_at: {
-            type: Sequelize.DATE,
+            type: DataTypes.DATE,
         },
     }, {
         tableName: 'tasks',
@@ -71,25 +72,25 @@ module.exports = function modelTask(sequelize, Sequelize) {
                     where: {
                         queue,
                         node_id: {
-                            $or: [
+                            [Sequelize.Op.or]: [
                                 null,
                                 nodeId,
                             ],
                         },
                         status: 'pending',
                         start_at: {
-                            $or: [
+                            [Sequelize.Op.or]: [
                                 null,
                                 {
-                                    $lt: moment().toDate(),
+                                    [Sequelize.Op.lt]: moment().toDate(),
                                 },
                             ],
                         },
                         finish_at: {
-                            $or: [
+                            [Sequelize.Op.or]: [
                                 null,
                                 {
-                                    $gte: moment().toDate(),
+                                    [Sequelize.Op.gte]: moment().toDate(),
                                 },
                             ],
                         },
@@ -109,34 +110,35 @@ module.exports = function modelTask(sequelize, Sequelize) {
                 };
             },
         },
-
-        instanceMethods: {
-            fail(delay, options) {
-                this.start_at = delay ? moment().add(delay, 'ms').toDate() : null;
-                this.attempts = sequelize.literal('attempts + 1');
-                this.status = 'failure';
-                return this.save(options);
-            },
-            complete(options) {
-                this.status = 'done';
-                return this.save(options);
-            },
-            work(nodeId, options) {
-                this.status = 'working';
-                this.worker_node_id = nodeId;
-                this.worker_started_at = moment().toDate();
-                return this.save(options);
-            },
-            check(options) {
-                this.checked_at = moment().toDate();
-                return this.save(options);
-            },
-        },
-
-        classMethods: {
-            associate(models) {
-                models.Task.belongsTo(models.Node, {foreignKey: 'node_id'});
-            },
-        },
     });
+
+    Task.associate = function associate(models) {
+        models.Node.hasMany(models.Node, {foreignKey: 'node_id'});
+    };
+
+    Task.prototype.fail = function fail(delay, options) {
+        this.start_at = delay ? moment().add(delay, 'ms').toDate() : null;
+        this.attempts = sequelize.literal('attempts + 1');
+        this.status = 'failure';
+        return this.save(options);
+    };
+
+    Task.prototype.complete = function complete(options) {
+        this.status = 'done';
+        return this.save(options);
+    };
+
+    Task.prototype.work = function work(nodeId, options) {
+        this.status = 'working';
+        this.worker_node_id = nodeId;
+        this.worker_started_at = moment().toDate();
+        return this.save(options);
+    };
+
+    Task.prototype.check = function check(options) {
+        this.checked_at = moment().toDate();
+        return this.save(options);
+    };
+
+    return Task;
 };

@@ -2,31 +2,31 @@
 
 const moment = require('moment');
 
-module.exports = function modelNode(sequelize, Sequelize) {
-    return sequelize.define('Node', {
+module.exports = function modelNode(sequelize, DataTypes) {
+    const Node = sequelize.define('Node', {
         id: {
-            type: Sequelize.INTEGER,
+            type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
         },
         hostname: {
-            type: Sequelize.STRING,
+            type: DataTypes.STRING,
             allowNull: false,
             unique: true,
         },
         status: {
-            type: Sequelize.ENUM,
+            type: DataTypes.ENUM,
             values: ['active', 'paused'],
             defaultValue: 'active',
             allowNull: false,
         },
         is_active: {
-            type: Sequelize.BOOLEAN,
+            type: DataTypes.BOOLEAN,
             defaultValue: false,
             allowNull: false,
         },
         checked_at: {
-            type: Sequelize.DATE,
+            type: DataTypes.DATE,
         },
     }, {
         tableName: 'nodes',
@@ -42,19 +42,17 @@ module.exports = function modelNode(sequelize, Sequelize) {
                 },
             },
         },
-
-        instanceMethods: {
-            check(options) {
-                this.is_active = true;
-                this.checked_at = moment().toDate();
-                return this.save(options);
-            },
-        },
-
-        classMethods: {
-            associate(models) {
-                models.Node.hasMany(models.Task, {foreignKey: 'node_id'});
-            },
-        },
     });
+
+    Node.associate = function associate(models) {
+        models.Node.hasMany(models.Task, {foreignKey: 'node_id'});
+    };
+
+    Node.prototype.check = function check(options) {
+        this.is_active = true;
+        this.checked_at = moment().toDate();
+        return this.save(options);
+    };
+
+    return Node;
 };

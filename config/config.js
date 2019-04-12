@@ -2,12 +2,10 @@
 
 const _ = require('lodash');
 const path = require('path');
-const workers = require('./workers');
+const intel = require('intel');
 
 // Set environment
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
-// Set log4js config
-process.env.LOG4JS_CONFIG = path.join(__dirname, '..', 'log4js.json');
 
 // Load dotenv
 require('dotenv').config({
@@ -18,6 +16,15 @@ require('dotenv').config({
 const config = {
     env: process.env.NODE_ENV,
     node_id: parseInt(process.env.NODE_ID || 0, 10),
+    shutdownInterval: 1000,
+
+    logger: {
+        level: intel.DEBUG,
+        path: path.resolve('./logs'),
+        size: '50m',
+        keep: 10,
+    },
+
     database: {
         url: process.env.MYSQL_URI,
         dialect: 'mysql',
@@ -28,8 +35,8 @@ const config = {
             idle: 10000,
         },
     },
-    shutdownInterval: 1000,
-    workers,
+
+    workers: require('./workers'),
 };
 
 // Sequelize environments
@@ -39,5 +46,8 @@ _.each(['development', 'production', 'test'], env => {
         config[env].url = process.env.MYSQL_URI_TEST;
     }
 });
+
+// Setup logger
+require('./logger')(config.logger);
 
 module.exports = config;

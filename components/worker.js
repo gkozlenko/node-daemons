@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 const Promise = require('bluebird');
-const log4js = require('log4js');
+const intel = require('intel');
 const EventEmitter = require('events');
 const WorkerConst = require('./worker_const');
 
@@ -15,9 +15,9 @@ class Worker extends EventEmitter {
             sleep: 1000,
             silence: false,
         });
-        this.logger = log4js.getLogger(`worker-${name}`);
+        this.logger = intel.getLogger(`worker-${name}`);
         if (this.conf.silence) {
-            this.logger.setLevel(log4js.levels.OFF);
+            this.logger.setLevel(intel.NONE);
         }
         this.stopped = true;
         this.timer = null;

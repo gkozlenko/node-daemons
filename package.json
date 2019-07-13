@@ -30,19 +30,19 @@
     "dotenv": "^8.0.0",
     "intel": "^1.2.0",
     "ip": "^1.1.5",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.14",
     "logrotate-stream": "^0.2.5",
     "moment": "^2.24.0",
     "mysql": "^2.17.1",
     "mysql2": "^1.6.5",
-    "sequelize": "^5.8.9",
+    "sequelize": "^5.10.0",
     "sequelize-cli": "^5.5.0"
   },
   "devDependencies": {
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "chai-datetime": "^1.5.0",
-    "eslint": "^5.16.0",
+    "eslint": "^6.0.1",
     "faker": "^4.1.0",
     "mocha": "^6.1.4",
     "nyc": "^14.1.1"

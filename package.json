@@ -27,24 +27,24 @@
   },
   "dependencies": {
     "bluebird": "^3.5.5",
-    "dotenv": "^8.0.0",
+    "dotenv": "^8.1.0",
     "intel": "^1.2.0",
     "ip": "^1.1.5",
-    "lodash": "^4.17.14",
+    "lodash": "^4.17.15",
     "logrotate-stream": "^0.2.5",
     "moment": "^2.24.0",
     "mysql": "^2.17.1",
-    "mysql2": "^1.6.5",
-    "sequelize": "^5.10.0",
-    "sequelize-cli": "^5.5.0"
+    "mysql2": "^1.7.0",
+    "sequelize": "^5.18.1",
+    "sequelize-cli": "^5.5.1"
   },
   "devDependencies": {
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "chai-datetime": "^1.5.0",
-    "eslint": "^6.0.1",
+    "eslint": "^6.3.0",
     "faker": "^4.1.0",
-    "mocha": "^6.1.4",
+    "mocha": "^6.2.0",
     "nyc": "^14.1.1"
   }
 }

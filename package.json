@@ -26,25 +26,25 @@
     "lint": "eslint \"./**/*.js\""
   },
   "dependencies": {
-    "bluebird": "^3.5.5",
-    "dotenv": "^8.1.0",
+    "bluebird": "^3.7.2",
+    "dotenv": "^8.2.0",
     "intel": "^1.2.0",
     "ip": "^1.1.5",
     "lodash": "^4.17.15",
-    "logrotate-stream": "^0.2.5",
+    "logrotate-stream": "^0.2.6",
     "moment": "^2.24.0",
-    "mysql": "^2.17.1",
-    "mysql2": "^1.7.0",
-    "sequelize": "^5.18.1",
+    "mysql": "^2.18.1",
+    "mysql2": "^2.1.0",
+    "sequelize": "^5.21.5",
     "sequelize-cli": "^5.5.1"
   },
   "devDependencies": {
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "chai-datetime": "^1.5.0",
-    "eslint": "^6.3.0",
+    "eslint": "^6.8.0",
     "faker": "^4.1.0",
-    "mocha": "^6.2.0",
-    "nyc": "^14.1.1"
+    "mocha": "^7.1.1",
+    "nyc": "^15.0.0"
   }
 }

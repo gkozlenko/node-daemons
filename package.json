@@ -35,7 +35,7 @@
     "moment": "^2.24.0",
     "mysql": "^2.18.1",
     "mysql2": "^2.1.0",
-    "sequelize": "^5.21.6",
+    "sequelize": "^6.28.2",
     "sequelize-cli": "^5.5.1"
   },
   "devDependencies": {
